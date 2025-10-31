@@ -59,14 +59,62 @@ firebase deploy --only hosting
    - Create `build/web/_redirects` file with: `/* /index.html 200`
 
 ### Option 3: GitHub Pages
-```powershell
-# Install gh-pages (requires Node.js)
-npm install -g gh-pages
 
-# Deploy to GitHub Pages
-cd build/web
-gh-pages -d .
+#### Method A: Using GitHub Actions (Recommended)
+1. Create `.github/workflows/deploy.yml` in your project root
+2. Push your code to GitHub
+3. GitHub Actions will automatically build and deploy
+
+```yaml
+# .github/workflows/deploy.yml
+name: Deploy Flutter Web to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      
+      - name: Install dependencies
+        run: flutter pub get
+      
+      - name: Build web
+        run: flutter build web --release --pwa-strategy=offline-first --base-href /pee_meter/
+      
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/web
 ```
+
+#### Method B: Manual Deployment
+```powershell
+# From project root
+git checkout -b gh-pages
+git rm -rf .
+git checkout main -- build/web
+mv build/web/* .
+rm -rf build
+git add .
+git commit -m "Deploy to GitHub Pages"
+git push origin gh-pages --force
+git checkout main
+```
+
+Then enable GitHub Pages in your repository settings:
+1. Go to Settings > Pages
+2. Select `gh-pages` branch as source
+3. Your app will be available at: https://hit1009.github.io/pee_meter/
 
 ### Option 4: Vercel
 ```powershell
