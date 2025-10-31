@@ -52,11 +52,15 @@ firebase init hosting
 firebase deploy --only hosting
 ```
 
-### Option 2: Netlify
+### Option 2: Netlify (Recommended for iOS PWA)
+**Best option for iOS PWA - gives you a root domain automatically!**
+
 1. Sign up at https://netlify.com
 2. Drag and drop the `build/web` folder to Netlify
-3. Configure redirects for SPA:
-   - Create `build/web/_redirects` file with: `/* /index.html 200`
+3. Done! You'll get a URL like `https://your-app-name.netlify.app`
+4. Redirects are handled automatically by Netlify
+
+Your PWA will work perfectly on iOS with this option!
 
 ### Option 3: GitHub Pages
 
@@ -114,17 +118,25 @@ git checkout main
 Then enable GitHub Pages in your repository settings:
 1. Go to Settings > Pages
 2. Select `gh-pages` branch as source
-3. Your app will be available at: https://hit1009.github.io/pee_meter/
+3. **Important for iOS PWA**: Add a custom domain (Settings > Pages > Custom domain)
+   - GitHub Pages subdirectories (like /pee_meter/) don't work well with iOS PWA
+   - You need a custom domain or use a service like Netlify/Vercel that gives you a root domain
 
-### Option 4: Vercel
+### Option 4: Vercel (Also Great for iOS PWA)
+**Another excellent option - also gives you a root domain!**
+
 ```powershell
-# Install Vercel CLI
+# Install Vercel CLI (if not installed)
 npm install -g vercel
 
-# Deploy
-cd build/web
+# Deploy from project root (not from build/web)
+cd c:\Users\hitar\Downloads\pee-meter\pee_meter
 vercel --prod
+
+# Follow the prompts and select 'build/web' as output directory
 ```
+
+You'll get a URL like `https://your-app-name.vercel.app`
 
 ## Installing on iOS as PWA
 
