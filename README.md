@@ -1,1 +1,16 @@
-Track you hydration levels based on frequency of urination. This flutter app is built to test Progressive Web Apps on IOS. Vist the flutter app hosted on github pages on iPhone safari browser and click add to home screen. Open the icon on the home screen to make the web app behave like a native app without installation
+# pee_meter
+
+A new Flutter project.
+
+## Getting Started
+
+This project is a starting point for a Flutter application.
+
+A few resources to get you started if this is your first Flutter project:
+
+- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
+- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+
+For help getting started with Flutter development, view the
+[online documentation](https://docs.flutter.dev/), which offers tutorials,
+samples, guidance on mobile development, and a full API reference.
