@@ -10,6 +10,9 @@
     "prefer_related_applications": false,
     "scope": "./",
     "categories": ["health", "lifestyle"],
+    "display_override": ["standalone", "fullscreen"],
+    "lang": "en-US",
+    "dir": "ltr",
     "icons": [
         {
             "src": "icons/Icon-192.png",
@@ -34,6 +37,12 @@
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "maskable"
+        },
+        {
+            "src": "icons/Icon-192.png",
+            "sizes": "180x180",
+            "type": "image/png",
+            "purpose": "any"
         }
     ]
 }

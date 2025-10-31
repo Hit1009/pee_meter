@@ -53,6 +53,42 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
+      margin: 0;
+      padding: 0;
+    }
+    
+    /* iOS-specific optimizations */
+    body.ios-device {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    /* Offline indicator */
+    body.offline::before {
+      content: "Offline Mode";
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background-color: #ff9800;
+      color: white;
+      text-align: center;
+      padding: 8px;
+      font-size: 14px;
+      font-weight: bold;
+      z-index: 10000;
+      animation: slideDown 0.3s ease-out;
+    }
+    
+    @keyframes slideDown {
+      from {
+        transform: translateY(-100%);
+      }
+      to {
+        transform: translateY(0);
+      }
     }
     
     /* Loading indicator */
@@ -77,6 +113,17 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
+    
+    /* PWA optimizations for iOS */
+    @media (display-mode: standalone) {
+      body {
+        /* Add safe area padding for iOS notch */
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+      }
+    }
   </style>
 </head>
 <body>
@@ -84,29 +131,107 @@
   <script src="flutter_bootstrap.js" async></script>
   
   <script>
-    // Register service worker for PWA functionality
+    // Register service worker for PWA functionality (iOS compatible)
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
-        navigator.serviceWorker.register('flutter_service_worker.js?v=3438075462')
+        // Register our custom service worker first for offline support
+        navigator.serviceWorker.register('sw.js', { scope: './' })
           .then(function(registration) {
-            console.log('ServiceWorker registration successful');
+            console.log('Custom ServiceWorker registration successful');
+            
+            // Check for updates periodically (important for iOS)
+            setInterval(() => {
+              registration.update();
+            }, 60000); // Check every minute
+            
+            // Handle service worker updates
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  // New service worker available, prompt user to update
+                  console.log('New version available! Please refresh.');
+                  if (confirm('New version available! Reload to update?')) {
+                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                    window.location.reload();
+                  }
+                }
+              });
+            });
           })
           .catch(function(err) {
             console.log('ServiceWorker registration failed: ', err);
           });
+        
+        // Also register Flutter's service worker if it exists (for dev mode)
+        navigator.serviceWorker.register('flutter_service_worker.js?v=88445742')
+          .then(function(registration) {
+            console.log('Flutter ServiceWorker registration successful');
+          })
+          .catch(function(err) {
+            console.log('Flutter ServiceWorker not available (normal in production)');
+          });
+      });
+      
+      // Listen for service worker controller change
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        console.log('Service worker controller changed');
       });
     }
     
-    // iOS standalone mode detection
+    // iOS standalone mode detection and optimization
     if (window.navigator.standalone === true) {
       console.log('Running as PWA on iOS');
+      document.body.classList.add('ios-standalone');
     }
     
-    // Prevent iOS pull-to-refresh
-    document.body.addEventListener('touchmove', function(e) {
-      if (e.touches.length > 1) return;
-      e.preventDefault();
-    }, { passive: false });
+    // Detect if running on iOS
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (isIOS) {
+      console.log('Running on iOS device');
+      document.body.classList.add('ios-device');
+      
+      // Prevent iOS pull-to-refresh
+      let lastY = 0;
+      document.body.addEventListener('touchstart', function(e) {
+        lastY = e.touches[0].clientY;
+      }, { passive: true });
+      
+      document.body.addEventListener('touchmove', function(e) {
+        const y = e.touches[0].clientY;
+        if (window.pageYOffset === 0 && y > lastY) {
+          e.preventDefault();
+        }
+      }, { passive: false });
+    }
+    
+    // Network status monitoring
+    function updateOnlineStatus() {
+      if (navigator.onLine) {
+        console.log('Online');
+        document.body.classList.remove('offline');
+      } else {
+        console.log('Offline - using cached content');
+        document.body.classList.add('offline');
+      }
+    }
+    
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    updateOnlineStatus();
+    
+    // Pre-cache additional assets on first load
+    if ('caches' in window) {
+      window.addEventListener('load', () => {
+        // Give additional time for the app to load
+        setTimeout(() => {
+          caches.open('pee-meter-runtime-v1').then(cache => {
+            // Pre-cache any additional resources here
+            console.log('Runtime cache ready');
+          });
+        }, 3000);
+      });
+    }
   </script>
 </body>
 </html>
