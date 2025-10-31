@@ -7,7 +7,7 @@ Write-Host ""
 # Check if build exists
 if (-Not (Test-Path "build\web")) {
     Write-Host "❌ Build folder not found. Building app..." -ForegroundColor Yellow
-    flutter build web --release --pwa-strategy=offline-first --base-href /
+    flutter build web --release --base-href /pee_meter/
 } else {
     Write-Host "✅ Build folder found!" -ForegroundColor Green
 }
