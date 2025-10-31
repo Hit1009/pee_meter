@@ -1,14 +1,14 @@
 {
     "name": "Pee Meter",
     "short_name": "Pee Meter",
-    "start_url": "/",
+    "start_url": "./",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
     "description": "Track your hydration with Pee Meter",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
-    "scope": "/",
+    "scope": "./",
     "categories": ["health", "lifestyle"],
     "icons": [
         {
